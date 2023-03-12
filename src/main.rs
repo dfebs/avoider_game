@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::collide_aabb::collide};
 use enemy::*;
 use player::*;
 use common_components::*;
@@ -6,6 +6,21 @@ use common_components::*;
 mod common_components;
 mod enemy;
 mod player;
+
+fn detect_collisions(
+    player: Query<&Transform, With<Player>>, 
+    enemies: Query<&Transform, With<Enemy>>
+) {
+    let player_transform = player.single();
+    let player_size = Vec2::new(PLAYER_SIZE, PLAYER_SIZE);
+    let enemy_size = Vec2::new(ENEMY_SIZE, ENEMY_SIZE);
+
+    for transform in enemies.iter() {
+        if let Some(_) = collide(player_transform.translation, player_size, transform.translation, enemy_size) {
+            println!("OMG COLLISION");
+        }
+    }
+}
 
 fn setup(
     mut commands: Commands,
@@ -35,12 +50,17 @@ fn main() {
         .add_startup_system(setup)
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
+        .add_system(detect_collisions)
         .run();
     println!("Hello, world!");
 }
 
 // TODO
-// Implement enemy spawning/despawning off-screen
+// Add a game state for game_in_progress, and one for game_over when collision happens (bevy 0.1 has state stuff now)
 // Add controller support
 // Make a readme
+// make the sprites
 // Look up what insert method does (it seems to be a follow up to commands.spawn())
+// enemies move through each other so I will want to figure out a way for them to not spawn on the same y-axis of an existing one (but only if it is slower or equal speed)
+// have a thing for shooting the bad guys
+// special ability where you can shoot 3 shots at the dudes, high ish cooldown 

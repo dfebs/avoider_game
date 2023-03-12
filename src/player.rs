@@ -4,6 +4,7 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Player;
 
+pub const PLAYER_SIZE: f32 = 50.0;
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
