@@ -9,7 +9,8 @@ mod player;
 
 fn detect_collisions(
     player: Query<&Transform, With<Player>>, 
-    enemies: Query<&Transform, With<Enemy>>
+    enemies: Query<&Transform, With<Enemy>>,
+    mut app_state: ResMut<State<AppState>>
 ) {
     let player_transform = player.single();
     let player_size = Vec2::new(PLAYER_SIZE, PLAYER_SIZE);
@@ -17,7 +18,7 @@ fn detect_collisions(
 
     for transform in enemies.iter() {
         if let Some(_) = collide(player_transform.translation, player_size, transform.translation, enemy_size) {
-            println!("OMG COLLISION");
+            app_state.0 = AppState::GameOver;
         }
     }
 }
@@ -47,16 +48,17 @@ fn setup(
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_state::<AppState>()
         .add_startup_system(setup)
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
         .add_system(detect_collisions)
         .run();
-    println!("Hello, world!");
 }
 
 // TODO
-// Add a game state for game_in_progress, and one for game_over when collision happens (bevy 0.1 has state stuff now)
+// Add a game over text thing when the state changes to GameOver
+// Add increasing difficulty over time (probably ad infinitum). This would most likely involve a timer
 // Add controller support
 // Make a readme
 // make the sprites

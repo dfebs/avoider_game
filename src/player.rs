@@ -9,8 +9,9 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
-        .add_system(player_movement)
-        .add_system(handle_keyboard_input);
+        .add_systems(
+            (player_movement, handle_keyboard_input).in_set(OnUpdate(AppState::InGame))
+        );
     }
 }
 

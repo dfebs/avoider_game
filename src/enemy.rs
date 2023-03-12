@@ -19,8 +19,9 @@ impl Plugin for EnemyPlugin {
         app
         .insert_resource(EnemySpawnTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
         .insert_resource(EnemyCount(0))
-        .add_system(enemy_spawning)
-        .add_system(enemy_movement);
+        .add_systems(
+            (enemy_spawning, enemy_movement).in_set(OnUpdate(AppState::InGame))
+        );
     }
 }
 
