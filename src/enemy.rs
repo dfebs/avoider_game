@@ -38,12 +38,7 @@ fn enemy_spawning(
         let window = window.single();
         commands.spawn((
             Enemy,
-            SpriteBundle { // dont ever query for the bundle type, aka the SpriteBundle
-                // sprite: Sprite { // instead of using a default, you can use a texture
-                //     color: Color::rgb(0.9, 0.1, 0.2),
-                //     custom_size: Some(Vec2::new(ENEMY_HITBOX_SIZE, ENEMY_HITBOX_SIZE)),
-                //     ..default()
-                // },
+            SpriteBundle {
                 texture: asset_server.load("space_ship_enemy.png"),
                 transform: Transform::from_xyz(window.width() / 2.0 + ENEMY_HITBOX_SIZE, rng.gen_range(-300.0..300.0), 0.),
                 ..default()
