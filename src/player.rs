@@ -4,7 +4,7 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Player;
 
-pub const PLAYER_SIZE: f32 = 50.0;
+pub const PLAYER_HITBOX_SIZE: f32 = 54.0; // Player sprite is 64x64, this is more lenient
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {

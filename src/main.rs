@@ -13,8 +13,8 @@ fn detect_collisions(
     mut app_state: ResMut<State<AppState>>
 ) {
     let player_transform = player.single();
-    let player_size = Vec2::new(PLAYER_SIZE, PLAYER_SIZE);
-    let enemy_size = Vec2::new(ENEMY_SIZE, ENEMY_SIZE);
+    let player_size = Vec2::new(PLAYER_HITBOX_SIZE, PLAYER_HITBOX_SIZE);
+    let enemy_size = Vec2::new(ENEMY_HITBOX_SIZE, ENEMY_HITBOX_SIZE);
 
     for transform in enemies.iter() {
         if let Some(_) = collide(player_transform.translation, player_size, transform.translation, enemy_size) {
@@ -26,18 +26,20 @@ fn detect_collisions(
 fn setup(
     mut commands: Commands,
     mut _meshes: ResMut<Assets<Mesh>>, // Mutable resouces wrapping a mesh asset
-    mut _materials: ResMut<Assets<ColorMaterial>> // Mutable resouces wrapping a colormaterial asset
+    mut _materials: ResMut<Assets<ColorMaterial>>, // Mutable resouces wrapping a colormaterial asset
+    asset_server: Res<AssetServer>
 ) {
     commands.spawn(Camera2dBundle::default());
 
     commands.spawn((
         Player,
         SpriteBundle { // dont ever query for the bundle type, aka the SpriteBundle
-            sprite: Sprite { // instead of using a default, you can use a texture
-                color: Color::rgb(0.1, 0.1, 0.75),
-                custom_size: Some(Vec2::new(50.0, 50.0)),
-                ..default()
-            },
+            // sprite: Sprite { // instead of using a default, you can use a texture
+            //     color: Color::rgb(0.1, 0.1, 0.75),
+            //     custom_size: Some(Vec2::new(50.0, 50.0)),
+            //     ..default()
+            // },
+            texture: asset_server.load("space_ship_player.png"),
             transform: Transform::from_xyz(100.,0., 0.),
             ..default()
         },
@@ -55,14 +57,3 @@ fn main() {
         .add_system(detect_collisions)
         .run();
 }
-
-// TODO
-// Add a game over text thing when the state changes to GameOver
-// Add increasing difficulty over time (probably ad infinitum). This would most likely involve a timer
-// Add controller support
-// Make a readme
-// make the sprites
-// Look up what insert method does (it seems to be a follow up to commands.spawn())
-// enemies move through each other so I will want to figure out a way for them to not spawn on the same y-axis of an existing one (but only if it is slower or equal speed)
-// have a thing for shooting the bad guys
-// special ability where you can shoot 3 shots at the dudes, high ish cooldown 

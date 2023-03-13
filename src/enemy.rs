@@ -12,7 +12,7 @@ struct EnemySpawnTimer(Timer);
 #[derive(Resource)]
 pub struct EnemyCount(i32);
 
-pub const ENEMY_SIZE : f32 = 50.0;
+pub const ENEMY_HITBOX_SIZE : f32 = 54.0; // Enemy sprite is 64x64, this is more lenient
 pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
@@ -30,7 +30,8 @@ fn enemy_spawning(
     window: Query<&Window>,
     time: Res<Time>, 
     mut timer: ResMut<EnemySpawnTimer>,
-    mut enemy_count: ResMut<EnemyCount>
+    mut enemy_count: ResMut<EnemyCount>,
+    asset_server: Res<AssetServer>
 ) {
     let mut rng = rand::thread_rng();
     if timer.0.tick(time.delta()).just_finished() {
@@ -38,12 +39,13 @@ fn enemy_spawning(
         commands.spawn((
             Enemy,
             SpriteBundle { // dont ever query for the bundle type, aka the SpriteBundle
-                sprite: Sprite { // instead of using a default, you can use a texture
-                    color: Color::rgb(0.9, 0.1, 0.2),
-                    custom_size: Some(Vec2::new(ENEMY_SIZE, ENEMY_SIZE)),
-                    ..default()
-                },
-                transform: Transform::from_xyz(window.width() / 2.0 + ENEMY_SIZE, rng.gen_range(-300.0..300.0), 0.),
+                // sprite: Sprite { // instead of using a default, you can use a texture
+                //     color: Color::rgb(0.9, 0.1, 0.2),
+                //     custom_size: Some(Vec2::new(ENEMY_HITBOX_SIZE, ENEMY_HITBOX_SIZE)),
+                //     ..default()
+                // },
+                texture: asset_server.load("space_ship_enemy.png"),
+                transform: Transform::from_xyz(window.width() / 2.0 + ENEMY_HITBOX_SIZE, rng.gen_range(-300.0..300.0), 0.),
                 ..default()
             },
             Velocity( Vec2 { x: rng.gen_range(-100.0..-10.0) , y: 0.0 } )
@@ -64,7 +66,7 @@ pub fn enemy_movement(
     let window = window.single();
     for (entity, vel, mut transform) in enemies.iter_mut() {
         transform.translation.x += vel.0.x * time.delta_seconds();
-        if transform.translation.x < -window.width() / 2.0 - ENEMY_SIZE { 
+        if transform.translation.x < -window.width() / 2.0 - ENEMY_HITBOX_SIZE { 
             commands.entity(entity).despawn();
             enemy_count.0 -= 1;
             println!("enemy count decremented to {}", enemy_count.0);
