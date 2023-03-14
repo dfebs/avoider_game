@@ -1,24 +1,30 @@
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 use enemy::*;
 use player::*;
-use common_components::*;
+use common::*;
 
-mod common_components;
+mod common;
 mod enemy;
 mod player;
 
 fn detect_collisions(
+    mut commands: Commands,
     player: Query<&Transform, With<Player>>, 
-    enemies: Query<&Transform, With<Enemy>>,
+    player_projectiles: Query<&Transform, With<Projectile>>,
+    enemies: Query<(Entity, &Transform), With<Enemy>>,
     mut app_state: ResMut<State<AppState>>
 ) {
     let player_transform = player.single();
-    let player_size = Vec2::new(PLAYER_HITBOX_SIZE, PLAYER_HITBOX_SIZE);
-    let enemy_size = Vec2::new(ENEMY_HITBOX_SIZE, ENEMY_HITBOX_SIZE);
 
-    for transform in enemies.iter() {
-        if let Some(_) = collide(player_transform.translation, player_size, transform.translation, enemy_size) {
+    for (entity, enemy_transform) in enemies.iter() {
+        if let Some(_) = collide(player_transform.translation, PLAYER_HITBOX, enemy_transform.translation, ENEMY_HITBOX) {
             app_state.0 = AppState::GameOver;
+        }
+
+        for projectile_transform in player_projectiles.iter() {
+            if let Some(_) = collide(projectile_transform.translation, PROJECTILE_HITBOX, enemy_transform.translation, ENEMY_HITBOX) {
+                commands.entity(entity).despawn();
+            }
         }
     }
 }
@@ -33,12 +39,7 @@ fn setup(
 
     commands.spawn((
         Player,
-        SpriteBundle { // dont ever query for the bundle type, aka the SpriteBundle
-            // sprite: Sprite { // instead of using a default, you can use a texture
-            //     color: Color::rgb(0.1, 0.1, 0.75),
-            //     custom_size: Some(Vec2::new(50.0, 50.0)),
-            //     ..default()
-            // },
+        SpriteBundle {
             texture: asset_server.load("space_ship_player.png"),
             transform: Transform::from_xyz(100.,0., 0.),
             ..default()
@@ -55,5 +56,6 @@ fn main() {
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
         .add_system(detect_collisions)
+        .add_system(projectile_movement)
         .run();
 }
