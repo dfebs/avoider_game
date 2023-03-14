@@ -4,19 +4,6 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Player;
 
-#[derive(Component)]
-pub struct Projectile;
-
-pub fn projectile_movement( // turn into a plugin at some point probably
-    time: Res<Time>, 
-    mut sprite: Query<(&mut Transform, &Velocity), With<Projectile>>
-) {
-    for (mut transform, vel) in &mut sprite {
-        transform.translation.x += vel.0.x * time.delta_seconds();
-        transform.translation.y += vel.0.y * time.delta_seconds();
-    }
-}
-
 pub const PLAYER_HITBOX: Vec2 = Vec2::new(34.0, 54.0); // Player sprite is 64x64, this is more lenient
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
@@ -42,6 +29,16 @@ fn fire_weapon (
         },
         Velocity( Vec2 { x: 700.0 , y: 0.0 } )
     ));
+}
+
+pub fn projectile_movement( // turn into a plugin at some point probably
+    time: Res<Time>, 
+    mut sprite: Query<(&mut Transform, &Velocity), With<Projectile>>
+) {
+    for (mut transform, vel) in &mut sprite {
+        transform.translation.x += vel.0.x * time.delta_seconds();
+        transform.translation.y += vel.0.y * time.delta_seconds();
+    }
 }
 
 fn player_movement(

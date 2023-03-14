@@ -9,7 +9,7 @@ pub struct Enemy;
 struct EnemySpawnTimer(Timer);
 
 #[derive(Resource)]
-pub struct EnemyCount(i32);
+pub struct EnemyCount(pub i32);
 
 pub const ENEMY_HITBOX: Vec2 = Vec2::new(34.0, 54.0); // Enemy sprite is 64x64, this is more lenient
 pub struct EnemyPlugin;
