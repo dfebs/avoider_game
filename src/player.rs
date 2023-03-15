@@ -10,7 +10,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
         .add_systems(
-            (player_movement, handle_keyboard_input).in_set(OnUpdate(AppState::InGame))
+            (player_movement, handle_keyboard_input, projectile_movement).in_set(OnUpdate(AppState::InGame))
         );
     }
 }
@@ -24,7 +24,7 @@ fn fire_weapon (
         Projectile,
         SpriteBundle {
             texture: asset_server.load("projectile.png"),
-            transform: Transform::from_xyz(player_transform.translation.x + 38.0 ,player_transform.translation.y, 0.),
+            transform: Transform::from_xyz(player_transform.translation.x + 38.0 ,player_transform.translation.y, 1.0),
             ..default()
         },
         Velocity( Vec2 { x: 700.0 , y: 0.0 } )
