@@ -9,15 +9,16 @@ To use, make sure you have rust installed and then do a `cargo run`. These instr
 * Add controller support
 * Make flames come out the ships backs
 * Make readme more robust
-* Load all assets at setup time instead of needing to use the asset server every time
-* Make a gif with some gameplay cause why not
+* Add a paused state
 
  ## Not Urgent, should do at some point
 * Use `insert` when spawning things with multiple attributes (aka basically everything) 
+* Add a slowdown effect when the ship stop
 * Add a planet or moon or something
 * Getting consecutive hits without misses could result in a bad guy exploding into multiple pieces that can kill other bad guys 
 * Special ability where you can shoot 3 shots at the dudes, high ish cooldown 
 * Clean up imports
+* Load all assets at setup time instead of needing to use the asset server every time <- this will be annoying to do and maybe I won't and call it a lesson learned
 
  ## Nice-to-Haves-But-Probably-Won't-Happen
 * arbitrary camera rotation for jokes? 

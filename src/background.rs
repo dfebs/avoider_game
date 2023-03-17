@@ -1,10 +1,21 @@
 use bevy::prelude::*;
 use rand::Rng;
 
-use crate::common::Velocity;
+use crate::common::{Velocity, AppState};
 
 #[derive(Component)]
 pub struct Star;
+
+pub struct BackgroundPlugin;
+impl Plugin for BackgroundPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        .add_state::<AppState>()
+        .add_systems(
+            (star_movement, ).in_set(OnUpdate(AppState::InGame))
+        );
+    }
+}
 
 pub fn star_movement(
     window: Query<&Window>,

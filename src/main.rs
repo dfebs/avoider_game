@@ -1,5 +1,5 @@
 use bevy::{prelude::*, sprite::collide_aabb::collide};
-use common::{Velocity, CommonPlugin};
+use common::{Velocity, CommonPlugin, ExplosionSprite};
 use enemy::EnemyPlugin;
 use player::{Player, PlayerPlugin};
 use background::*;
@@ -11,13 +11,10 @@ mod background;
 
 fn setup(
     mut commands: Commands,
-
-    mut _meshes: ResMut<Assets<Mesh>>, // Mutable resouces wrapping a mesh asset
-    mut _materials: ResMut<Assets<ColorMaterial>>, // Mutable resouces wrapping a colormaterial asset
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>, // TODO load all textures here
     asset_server: Res<AssetServer>
 ) {
     commands.spawn(Camera2dBundle::default());
-
     commands.spawn((
         Player,
         SpriteBundle {
@@ -27,6 +24,13 @@ fn setup(
         },
         Velocity( Vec2 { x: 100.0 , y: 100.0 } )
     ));
+
+    let texture_handle = asset_server.load("explosion_animation.png");
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(192.0, 192.0), 4, 3, None, None);
+    let explosion = texture_atlases.add(texture_atlas);
+
+    commands.insert_resource(ExplosionSprite(explosion));
+
 }
 
 fn main() {
