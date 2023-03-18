@@ -2,12 +2,14 @@ use bevy::{prelude::*, sprite::collide_aabb::collide};
 use common::{Velocity, CommonPlugin, ExplosionSprite};
 use enemy::EnemyPlugin;
 use player::{Player, PlayerPlugin};
+use stage_manager::*;
 use background::*;
 
 mod common;
 mod enemy;
 mod player;
 mod background;
+mod stage_manager;
 
 fn setup(
     mut commands: Commands,
@@ -37,11 +39,12 @@ fn main() {
     App::new()
         .add_startup_system(setup)
         .add_startup_system(spawn_stars)
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .add_system(star_movement)
+        .add_plugin(StageManagerPlugin)
         .add_plugins(DefaultPlugins)
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
         .add_plugin(CommonPlugin)
-        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .run();
 }

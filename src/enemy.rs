@@ -1,9 +1,13 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use rand::Rng;
-use crate::common::*;
+use crate::{common::*, stage_manager::CurrentStage};
 
 #[derive(Component)]
-pub struct Enemy;
+pub enum Enemy {
+    Standard
+}
 
 #[derive(Resource)]
 struct EnemySpawnTimer(Timer);
@@ -19,12 +23,12 @@ impl Plugin for EnemyPlugin {
         .insert_resource(EnemySpawnTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
         .insert_resource(EnemyCount(0))
         .add_systems(
-            (enemy_spawning, enemy_movement).in_set(OnUpdate(AppState::InGame))
+            (enemy_spawning, enemy_movement, check_for_stage_update).in_set(OnUpdate(AppState::InGame))
         );
     }
 }
 
-fn enemy_spawning(
+fn enemy_spawning( // TODO make random enemy based on enemy type that is expressed by the level
     mut commands: Commands, 
     window: Query<&Window>,
     time: Res<Time>, 
@@ -36,7 +40,7 @@ fn enemy_spawning(
     if timer.0.tick(time.delta()).just_finished() {
         let window = window.single();
         commands.spawn((
-            Enemy,
+            Enemy::Standard,
             SpriteBundle {
                 texture: asset_server.load("space_ship_enemy.png"),
                 transform: Transform::from_xyz(window.width() / 2.0 + ENEMY_HITBOX.x, rng.gen_range(-300.0..300.0), 1.0),
@@ -49,6 +53,19 @@ fn enemy_spawning(
     }
 }
 
+fn check_for_stage_update(
+    current_stage: Res<CurrentStage>,
+    mut enemy_spawn_timer: ResMut<EnemySpawnTimer>,
+) {
+    if enemy_spawn_timer.0.duration() == Duration::from_secs_f32(current_stage.0.enemy_spawn_rate_sec) {
+        return;
+    }
+
+    println!("Enemy spawn rate changed to {}", current_stage.0.enemy_spawn_rate_sec);
+
+    enemy_spawn_timer.0 = Timer::from_seconds(current_stage.0.enemy_spawn_rate_sec, TimerMode::Repeating)
+}
+
 pub fn enemy_movement(
     mut commands: Commands, 
     window: Query<&Window>, 
@@ -56,12 +73,13 @@ pub fn enemy_movement(
     mut enemy_count: ResMut<EnemyCount>,
     time: Res<Time>
 ) {
+    let mut rng = rand::thread_rng();
     let window = window.single();
     for (entity, vel, mut transform) in enemies.iter_mut() {
         transform.translation.x += vel.0.x * time.delta_seconds();
         if transform.translation.x < -window.width() / 2.0 - ENEMY_HITBOX.x { 
-            commands.entity(entity).despawn();
-            enemy_count.0 -= 1;
+            transform.translation.x = window.width() / 2.0 + ENEMY_HITBOX.x;
+            transform.translation.y = rng.gen_range(-300.0..300.0);
         }
     }
 

@@ -3,17 +3,17 @@ To use, make sure you have rust installed and then do a `cargo run`. These instr
 
 ## TODO
 * Add a game over text thing when the state changes to GameOver
-* Particle effects exist, but needed to be added when ships are exploded
-* Add increasing difficulty over time (probably ad infinitum). This would most likely involve a timer
+* Make different types of enemies spawn on some levels
 * Make the movement of components a more shared functionality, rather than scattered
 * Add controller support
 * Make flames come out the ships backs
 * Make readme more robust
 * Add a paused state
+* Add cooldown for player gun
 
  ## Not Urgent, should do at some point
 * Use `insert` when spawning things with multiple attributes (aka basically everything) 
-* Add a slowdown effect when the ship stop
+* Add a slowdown effect when the ship stops
 * Add a planet or moon or something
 * Getting consecutive hits without misses could result in a bad guy exploding into multiple pieces that can kill other bad guys 
 * Special ability where you can shoot 3 shots at the dudes, high ish cooldown 

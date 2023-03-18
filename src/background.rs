@@ -7,7 +7,7 @@ use crate::common::{Velocity, AppState};
 pub struct Star;
 
 pub struct BackgroundPlugin;
-impl Plugin for BackgroundPlugin {
+impl Plugin for BackgroundPlugin { // TODO add this plugin to the main one
     fn build(&self, app: &mut App) {
         app
         .add_state::<AppState>()

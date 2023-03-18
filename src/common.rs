@@ -55,7 +55,6 @@ fn animate_explosions(
             if sprite.index == 11 {
                 commands.entity(entity).despawn();
             }
-            println!("index is {}", sprite.index);
             sprite.index += 1;
         }
     }
