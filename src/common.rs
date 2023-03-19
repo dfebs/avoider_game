@@ -37,7 +37,8 @@ impl Plugin for CommonPlugin {
 pub enum AppState {
     #[default]
     InGame,
-    GameOver
+    Paused,
+    GameOver,
 }
 
 fn animate_explosions(

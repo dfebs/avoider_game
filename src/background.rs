@@ -11,6 +11,7 @@ impl Plugin for BackgroundPlugin { // TODO add this plugin to the main one
     fn build(&self, app: &mut App) {
         app
         .add_state::<AppState>()
+        .add_startup_system(spawn_stars)
         .add_systems(
             (star_movement, ).in_set(OnUpdate(AppState::InGame))
         );

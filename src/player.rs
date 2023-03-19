@@ -57,6 +57,7 @@ fn handle_keyboard_input(
     commands: Commands,
     asset_server: Res<AssetServer>,
     keys: Res<Input<KeyCode>>, 
+    mut app_state: ResMut<State<AppState>>,
     mut sprite: Query<(&Transform, &mut Velocity), With<Player>>
 ) {
     let (transform, mut vel) = sprite.single_mut();

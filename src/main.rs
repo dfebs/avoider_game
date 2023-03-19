@@ -4,12 +4,14 @@ use enemy::EnemyPlugin;
 use player::{Player, PlayerPlugin};
 use stage_manager::*;
 use background::*;
+use pause_menu::*;
 
 mod common;
 mod enemy;
 mod player;
 mod background;
 mod stage_manager;
+mod pause_menu;
 
 fn setup(
     mut commands: Commands,
@@ -17,7 +19,7 @@ fn setup(
     asset_server: Res<AssetServer>
 ) {
     commands.spawn(Camera2dBundle::default());
-    commands.spawn((
+    commands.spawn(( // TODO move to player file
         Player,
         SpriteBundle {
             texture: asset_server.load("space_ship_player.png"),
@@ -38,13 +40,13 @@ fn setup(
 fn main() {
     App::new()
         .add_startup_system(setup)
-        .add_startup_system(spawn_stars)
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
-        .add_system(star_movement)
-        .add_plugin(StageManagerPlugin)
         .add_plugins(DefaultPlugins)
-        .add_plugin(PlayerPlugin)
-        .add_plugin(EnemyPlugin)
+        .add_plugin(BackgroundPlugin)
         .add_plugin(CommonPlugin)
+        .add_plugin(EnemyPlugin)
+        .add_plugin(PausePlugin)
+        .add_plugin(PlayerPlugin)
+        .add_plugin(StageManagerPlugin)
         .run();
 }
