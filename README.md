@@ -7,7 +7,6 @@ To use, make sure you have rust installed and then do a `cargo run`. These instr
 * Add controller support
 * Make flames come out the ships backs
 * Make readme more robust
-* Add cooldown for player gun
 
  ## Not Urgent, should do at some point
 * Use `insert` when spawning things with multiple attributes (aka basically everything) 
@@ -18,7 +17,3 @@ To use, make sure you have rust installed and then do a `cargo run`. These instr
 * Clean up imports
 * Load all assets at setup time instead of needing to use the asset server every time <- this will be annoying to do and maybe I won't and call it a lesson learned
 * Make the movement of components a more shared functionality, rather than scattered
-
- ## Nice-to-Haves-But-Probably-Won't-Happen
-* arbitrary camera rotation for jokes? 
-* music related sync stuff, this is super out there though

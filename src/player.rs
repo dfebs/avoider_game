@@ -4,13 +4,16 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Player;
 
+#[derive(Component)]
+pub struct PlayerWeaponCooldownTimer(Timer);
+
 pub const PLAYER_HITBOX: Vec2 = Vec2::new(34.0, 54.0); // Player sprite is 64x64, this is more lenient
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
         .add_systems(
-            (player_movement, handle_keyboard_input, projectile_movement).in_set(OnUpdate(AppState::InGame))
+            (player_movement, handle_cooldowns, handle_keyboard_input, projectile_movement).in_set(OnUpdate(AppState::InGame))
         );
     }
 }
@@ -18,8 +21,22 @@ impl Plugin for PlayerPlugin {
 fn fire_weapon (
     player_transform: &Transform,
     mut commands: Commands,
-    asset_server: Res<AssetServer>
+    asset_server: Res<AssetServer>,
+    mut weapon_cooldown: Query<&mut PlayerWeaponCooldownTimer>,
 ) {
+    match weapon_cooldown.get_single_mut() {
+        Ok(mut timer) => {
+            if !timer.0.finished() {
+                return;
+            } 
+        }
+        Err(_) => {
+            commands.spawn(
+                PlayerWeaponCooldownTimer(Timer::from_seconds(0.5, TimerMode::Once))
+            );
+        }
+    }
+
     commands.spawn((
         Projectile,
         SpriteBundle {
@@ -29,6 +46,22 @@ fn fire_weapon (
         },
         Velocity( Vec2 { x: 700.0 , y: 0.0 } )
     ));
+}
+
+pub fn handle_cooldowns(
+    mut commands: Commands,
+    mut weapon_cooldown: Query<(Entity, &mut PlayerWeaponCooldownTimer)>,
+    time: Res<Time>
+) {
+    if let Ok((entity, mut timer)) = weapon_cooldown.get_single_mut() {
+        if !timer.0.tick(time.delta()).finished() {
+            println!("Timer not done");
+            return;
+        } else {
+            commands.entity(entity).despawn();
+            println!("Timer Despawned");
+        }
+    }
 }
 
 pub fn projectile_movement( // turn into a plugin at some point probably
@@ -56,14 +89,15 @@ fn player_movement(
 fn handle_keyboard_input(
     commands: Commands,
     asset_server: Res<AssetServer>,
-    keys: Res<Input<KeyCode>>, 
-    mut app_state: ResMut<State<AppState>>,
-    mut sprite: Query<(&Transform, &mut Velocity), With<Player>>
+    keys: Res<Input<KeyCode>>,
+    mut sprite: Query<(&Transform, &mut Velocity), With<Player>>,
+    weapon_cooldown: Query<&mut PlayerWeaponCooldownTimer>,
+    time: Res<Time>
 ) {
     let (transform, mut vel) = sprite.single_mut();
 
     if keys.just_pressed(KeyCode::Space) {
-        fire_weapon(transform, commands, asset_server);
+        fire_weapon(transform, commands, asset_server, weapon_cooldown);
     }
     if keys.pressed(KeyCode::W) {
         vel.0.y = 200.0;
