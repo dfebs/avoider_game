@@ -55,11 +55,9 @@ pub fn handle_cooldowns(
 ) {
     if let Ok((entity, mut timer)) = weapon_cooldown.get_single_mut() {
         if !timer.0.tick(time.delta()).finished() {
-            println!("Timer not done");
             return;
         } else {
             commands.entity(entity).despawn();
-            println!("Timer Despawned");
         }
     }
 }

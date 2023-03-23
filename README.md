@@ -3,7 +3,7 @@ To use, make sure you have rust installed and then do a `cargo run`. These instr
 
 ## TODO
 * Add a game over text thing when the state changes to GameOver
-* Make different types of enemies spawn on some levels
+* Scale enemy placement based on window size
 * Add controller support
 * Make flames come out the ships backs
 * Make readme more robust

@@ -13,12 +13,10 @@ pub struct AllStages(VecDeque<Stage>);
 #[derive(Resource)]
 pub struct CurrentStage(pub Stage);
 
-#[derive(Component)]
 pub struct Stage {
     pub enemy_types: Vec<Enemy>,
     pub enemy_spawn_rate_sec: f32, 
     pub timer_limit_sec: f32
-
 }
 
 pub struct StageManagerPlugin;
@@ -30,22 +28,22 @@ impl Plugin for StageManagerPlugin { // TODO add this plugin to the main one
             Stage {
                 enemy_types: Vec::from([Enemy::Standard]),
                 enemy_spawn_rate_sec: 2.0,
-                timer_limit_sec: 15.0
+                timer_limit_sec: 20.0
             },
         ))
-        .insert_resource(StageTimer(Timer::from_seconds(15.0, TimerMode::Once)))
+        .insert_resource(StageTimer(Timer::from_seconds(20.0, TimerMode::Once)))
         .insert_resource(AllStages(
             VecDeque::from(
             [
                 Stage {
-                    enemy_types: Vec::from([Enemy::Standard]),
+                    enemy_types: Vec::from([Enemy::Standard, Enemy::Wavy(1.0)]),
                     enemy_spawn_rate_sec: 1.0,
-                    timer_limit_sec: 15.0
+                    timer_limit_sec: 20.0
                 },
                 Stage {
-                    enemy_types: Vec::from([Enemy::Standard]),
+                    enemy_types: Vec::from([Enemy::Wavy(1.0), Enemy::Wavy(2.0)]),
                     enemy_spawn_rate_sec: 0.5,
-                    timer_limit_sec: 15.0
+                    timer_limit_sec: 20.0
                 }
             ]
         )))
