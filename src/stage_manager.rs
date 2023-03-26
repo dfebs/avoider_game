@@ -20,7 +20,7 @@ pub struct Stage {
 }
 
 pub struct StageManagerPlugin;
-impl Plugin for StageManagerPlugin { // TODO add this plugin to the main one
+impl Plugin for StageManagerPlugin {
     fn build(&self, app: &mut App) {
         app
         .add_state::<AppState>()

@@ -20,6 +20,8 @@ pub struct AnimationTimer(Timer);
 #[derive(Resource)]
 pub struct ExplosionSprite(pub Handle<TextureAtlas>);
 
+pub struct GameOverEvent; // fun fact, events can carry data with them too. Not needed here, but good to know.
+
 pub const PROJECTILE_HITBOX: Vec2 = Vec2::new(32.0, 16.0);
 
 pub struct CommonPlugin;
@@ -27,6 +29,7 @@ impl Plugin for CommonPlugin {
     fn build(&self, app: &mut App) {
         app
         .add_state::<AppState>()
+        .add_event::<GameOverEvent>()
         .add_systems(
             (detect_collisions, animate_explosions).in_set(OnUpdate(AppState::InGame))
         );
@@ -61,6 +64,19 @@ fn animate_explosions(
     }
 }
 
+fn spawn_explosion(commands: &mut Commands, explosion_sprite: &Res<ExplosionSprite>, transform: &Transform){
+    commands.spawn((
+        SpriteSheetBundle {
+            texture_atlas: explosion_sprite.0.clone(),
+            sprite: TextureAtlasSprite::new(0),
+            transform: Transform::from_xyz(transform.translation.x, transform.translation.y, 5.0),
+            // transform: Transform::from_scale(Vec3::new(enemy_transform.translation.x, enemy_transform.translation.y, 5.0)), // this will need to change
+            ..default()
+        },
+        AnimationTimer(Timer::from_seconds(0.05, TimerMode::Repeating)),
+    ));
+}
+
 fn detect_collisions(
     mut commands: Commands,
     player: Query<&Transform, With<Player>>, 
@@ -68,27 +84,20 @@ fn detect_collisions(
     enemies: Query<(Entity, &Transform), With<Enemy>>,
     mut app_state: ResMut<State<AppState>>,
     mut enemy_count: ResMut<EnemyCount>,
-    explosion_sprite: Res<ExplosionSprite>
+    explosion_sprite: Res<ExplosionSprite>,
+    mut game_over_event_writer: EventWriter<GameOverEvent>
 ) {
     let player_transform = player.single();
 
     for (entity, enemy_transform) in enemies.iter() {
         if let Some(_) = collide(player_transform.translation, PLAYER_HITBOX, enemy_transform.translation, ENEMY_HITBOX) {
             app_state.0 = AppState::GameOver;
+            game_over_event_writer.send(GameOverEvent);
         }
 
         for (projectile, projectile_transform) in player_projectiles.iter() {
             if let Some(_) = collide(projectile_transform.translation, PROJECTILE_HITBOX, enemy_transform.translation, ENEMY_HITBOX) {
-                commands.spawn((
-                    SpriteSheetBundle {
-                        texture_atlas: explosion_sprite.0.clone(),
-                        sprite: TextureAtlasSprite::new(0),
-                        transform: Transform::from_xyz(enemy_transform.translation.x, enemy_transform.translation.y, 5.0),
-                        // transform: Transform::from_scale(Vec3::new(enemy_transform.translation.x, enemy_transform.translation.y, 5.0)), // this will need to change
-                        ..default()
-                    },
-                    AnimationTimer(Timer::from_seconds(0.05, TimerMode::Repeating)),
-                ));
+                spawn_explosion(&mut commands, &explosion_sprite, enemy_transform);
                 commands.entity(entity).despawn();
                 commands.entity(projectile).despawn();
                 enemy_count.0 -= 1;

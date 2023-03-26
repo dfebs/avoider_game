@@ -16,10 +16,31 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
         .insert_resource(MyGamePad(Gamepad { id: 0 }))
+        .add_startup_systems(
+            (setup, ).in_set(OnUpdate(AppState::InGame))
+        )
         .add_systems(
             (player_movement, handle_cooldowns, handle_keyboard_input, handle_gamepad_input, projectile_movement).in_set(OnUpdate(AppState::InGame))
         );
     }
+}
+
+fn setup (mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn(( // TODO move to player file
+        Player,
+        SpriteBundle {
+            texture: asset_server.load("space_ship_player.png"),
+            transform: Transform::from_xyz(100.,0., 1.0),
+            ..default()
+        },
+        Velocity( Vec2 { x: 100.0 , y: 100.0 } )
+    ));
+}
+
+fn reset(mut commands: Commands, asset_server: Res<AssetServer>, mut player: Query<Entity, With<Player>>) {
+    let player = player.single_mut();
+    commands.entity(player).despawn();
+    setup(commands, asset_server)
 }
 
 fn fire_weapon (
@@ -52,7 +73,7 @@ fn fire_weapon (
     ));
 }
 
-pub fn handle_cooldowns(
+fn handle_cooldowns(
     mut commands: Commands,
     mut weapon_cooldown: Query<(Entity, &mut PlayerWeaponCooldownTimer)>,
     time: Res<Time>
@@ -66,7 +87,7 @@ pub fn handle_cooldowns(
     }
 }
 
-pub fn projectile_movement( // turn into a plugin at some point probably
+fn projectile_movement( // turn into a plugin at some point probably
     time: Res<Time>, 
     mut sprite: Query<(&mut Transform, &Velocity), With<Projectile>>
 ) {

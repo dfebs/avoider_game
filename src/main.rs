@@ -4,14 +4,14 @@ use enemy::EnemyPlugin;
 use player::{Player, PlayerPlugin};
 use stage_manager::*;
 use background::*;
-use pause_menu::*;
+use screens::*;
 
 mod common;
 mod enemy;
 mod player;
 mod background;
 mod stage_manager;
-mod pause_menu;
+mod screens;
 
 fn setup(
     mut commands: Commands,
@@ -19,15 +19,6 @@ fn setup(
     asset_server: Res<AssetServer>
 ) {
     commands.spawn(Camera2dBundle::default());
-    commands.spawn(( // TODO move to player file
-        Player,
-        SpriteBundle {
-            texture: asset_server.load("space_ship_player.png"),
-            transform: Transform::from_xyz(100.,0., 1.0),
-            ..default()
-        },
-        Velocity( Vec2 { x: 100.0 , y: 100.0 } )
-    ));
 
     let texture_handle = asset_server.load("explosion_animation.png");
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(192.0, 192.0), 4, 3, None, None);
@@ -45,7 +36,7 @@ fn main() {
         .add_plugin(BackgroundPlugin)
         .add_plugin(CommonPlugin)
         .add_plugin(EnemyPlugin)
-        .add_plugin(PausePlugin)
+        .add_plugin(ScreenManagerPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(StageManagerPlugin)
         .run();
