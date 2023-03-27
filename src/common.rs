@@ -20,7 +20,11 @@ pub struct AnimationTimer(Timer);
 #[derive(Resource)]
 pub struct ExplosionSprite(pub Handle<TextureAtlas>);
 
+#[derive(Resource)]
+pub struct MyGamePad(pub Gamepad);
+
 pub struct GameOverEvent; // fun fact, events can carry data with them too. Not needed here, but good to know.
+pub struct GameRestartEvent;
 
 pub const PROJECTILE_HITBOX: Vec2 = Vec2::new(32.0, 16.0);
 
@@ -30,6 +34,7 @@ impl Plugin for CommonPlugin {
         app
         .add_state::<AppState>()
         .add_event::<GameOverEvent>()
+        .add_event::<GameRestartEvent>()
         .add_systems(
             (detect_collisions, animate_explosions).in_set(OnUpdate(AppState::InGame))
         );

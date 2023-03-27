@@ -73,7 +73,7 @@ fn spawn_enemy(
     enemy_count.0 += 1;
 }
 
-fn enemy_spawning( // TODO make random enemy based on enemy type that is expressed by the level
+fn enemy_spawning(
     commands: Commands, 
     window: Query<&Window>,
     time: Res<Time>, 

@@ -2,11 +2,12 @@
 To use, make sure you have rust installed and then do a `cargo run`. These instructions and general description of the project are not great, and as such making this readme better is part of the todo list below.
 
 ## TODO
-* Add a game over text thing when the state changes to GameOver
 * Scale enemy placement based on window size
-* Add option to restart
 * Make flames come out the ships backs
 * Make readme more robust
+* Get this bad boi to run in the browser
+* Make controller able to pause and restart game
+* fix flaky bug where moving with wasd is messed up while gamepad is plugged in
 
  ## Not Urgent, should do at some point
 * Use `insert` when spawning things with multiple attributes (aka basically everything) 

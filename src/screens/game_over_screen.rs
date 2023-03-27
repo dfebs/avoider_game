@@ -8,12 +8,13 @@ pub struct GameOverPlugin;
 impl Plugin for GameOverPlugin {
     fn build(&self, app: &mut App) {
         app
-        .add_system(listen_for_game_state_change);
+        .add_system(listen_for_game_over)
+        .add_systems((check_for_restart_or_quit, ).in_set(OnUpdate(AppState::GameOver)));
     }
 }
 
-fn listen_for_game_state_change (
-    mut game_over_event_reader: EventReader<GameOverEvent>,
+fn listen_for_game_over (
+    game_over_event_reader: EventReader<GameOverEvent>,
     commands: Commands, 
     window: Query<&Window>,
     asset_server: Res<AssetServer>
@@ -23,9 +24,24 @@ fn listen_for_game_state_change (
     }
 }
 
-fn check_for_restart_or_quit () { // GameOver state only, listen for (A)/(X)/Space for restart, or (B)/Esc for exit game
+fn check_for_restart_or_quit ( // GameOver state only, listen for (A)/(X)/Space for restart, or (B)/Esc for exit game
+    keys: Res<Input<KeyCode>>,
+    mut restart_game_event: EventWriter<GameRestartEvent>,
+    game_over_screen_entites: Query<Entity, With<GameOverMenu>>,
+    mut app_state: ResMut<State<AppState>>,
+    mut commands: Commands,
     
+) {
+    if keys.just_pressed(KeyCode::Space) {
+        restart_game_event.send(GameRestartEvent);
+        for entity in game_over_screen_entites.iter() {
+            commands.entity(entity).despawn();
+        }
+
+        app_state.0 = AppState::InGame;
+    }
 }
+
 
 fn spawn_game_over_screen (
     mut commands: Commands,

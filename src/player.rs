@@ -7,9 +7,6 @@ pub struct Player;
 #[derive(Component)]
 pub struct PlayerWeaponCooldownTimer(Timer);
 
-#[derive(Resource)]
-struct MyGamePad(Gamepad);
-
 pub const PLAYER_HITBOX: Vec2 = Vec2::new(34.0, 54.0); // Player sprite is 64x64, this is more lenient
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
@@ -21,6 +18,9 @@ impl Plugin for PlayerPlugin {
         )
         .add_systems(
             (player_movement, handle_cooldowns, handle_keyboard_input, handle_gamepad_input, projectile_movement).in_set(OnUpdate(AppState::InGame))
+        )
+        .add_systems(
+            (listen_for_game_restart, ).in_set(OnUpdate(AppState::GameOver))
         );
     }
 }
@@ -37,10 +37,14 @@ fn setup (mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
-fn reset(mut commands: Commands, asset_server: Res<AssetServer>, mut player: Query<Entity, With<Player>>) {
-    let player = player.single_mut();
-    commands.entity(player).despawn();
-    setup(commands, asset_server)
+fn listen_for_game_restart(
+    game_restart_event_reader: EventReader<GameRestartEvent>,
+    commands: Commands, 
+    asset_server: Res<AssetServer>
+) {
+    if game_restart_event_reader.len() >= 1 {
+        setup (commands, asset_server)
+    }
 }
 
 fn fire_weapon (

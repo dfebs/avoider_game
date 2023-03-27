@@ -1,6 +1,6 @@
 use bevy::{prelude::*, sprite::collide_aabb::collide};
-use common::{Velocity, CommonPlugin, ExplosionSprite};
-use enemy::EnemyPlugin;
+use common::{Velocity, CommonPlugin, ExplosionSprite, GameOverEvent, Projectile};
+use enemy::{EnemyPlugin, Enemy};
 use player::{Player, PlayerPlugin};
 use stage_manager::*;
 use background::*;
@@ -28,15 +28,29 @@ fn setup(
 
 }
 
+// TODO have this wait for restart instead, ONLY in gameover state. seems more efficient. may not even need game over event after
+fn listen_for_game_over ( 
+    game_over_event_reader: EventReader<GameOverEvent>,
+    mut commands: Commands, 
+    entities: Query<Entity, Or<(With<Enemy>, With<Player>, With<Projectile>, With<TextureAtlasSprite>)>>
+) {
+    if game_over_event_reader.len() >= 1 {
+        for entity in entities.iter() {
+            commands.entity(entity).despawn();
+        }
+    }
+}
+
 fn main() {
     App::new()
         .add_startup_system(setup)
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
+        .add_system(listen_for_game_over)
         .add_plugins(DefaultPlugins)
+        .add_plugin(ScreenManagerPlugin)
         .add_plugin(BackgroundPlugin)
         .add_plugin(CommonPlugin)
         .add_plugin(EnemyPlugin)
-        .add_plugin(ScreenManagerPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(StageManagerPlugin)
         .run();
