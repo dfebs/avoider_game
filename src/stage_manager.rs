@@ -14,6 +14,7 @@ pub struct AllStages(VecDeque<Stage>);
 pub struct CurrentStage(pub Stage);
 
 pub struct Stage {
+    pub title: String,
     pub enemy_types: Vec<Enemy>,
     pub enemy_spawn_rate_sec: f32, 
     pub timer_limit_sec: f32
@@ -25,7 +26,6 @@ impl Plugin for StageManagerPlugin {
         let (starting_stage, starting_timer, remaining_stages) = generate_stages();
 
         app
-        .add_state::<AppState>()
         .insert_resource(CurrentStage(
             starting_stage
         ))
@@ -75,6 +75,7 @@ fn generate_stages () -> (Stage, StageTimer, VecDeque<Stage>) {
     const STARTING_TIME_LIMIT: f32 = 20.0;
 
     let first_stage = Stage {
+        title: String::from("Level 1"),
         enemy_types: Vec::from([Enemy::Standard]),
         enemy_spawn_rate_sec: 2.0,
         timer_limit_sec: STARTING_TIME_LIMIT
@@ -85,11 +86,13 @@ fn generate_stages () -> (Stage, StageTimer, VecDeque<Stage>) {
     let remaining_stages =  VecDeque::from(
         [
             Stage {
+                title: String::from("Level 2"),
                 enemy_types: Vec::from([Enemy::Standard, Enemy::Wavy(1.0)]),
                 enemy_spawn_rate_sec: 1.0,
                 timer_limit_sec: 20.0
             },
             Stage {
+                title: String::from("Level 3"),
                 enemy_types: Vec::from([Enemy::Wavy(1.0), Enemy::Wavy(2.0)]),
                 enemy_spawn_rate_sec: 0.5,
                 timer_limit_sec: 20.0

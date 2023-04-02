@@ -87,7 +87,7 @@ fn detect_collisions(
     player: Query<&Transform, With<Player>>, 
     player_projectiles: Query<(Entity, &Transform), With<Projectile>>,
     enemies: Query<(Entity, &Transform), With<Enemy>>,
-    mut app_state: ResMut<State<AppState>>,
+    mut next_state: ResMut<NextState<AppState>>,
     mut enemy_count: ResMut<EnemyCount>,
     explosion_sprite: Res<ExplosionSprite>,
     mut game_over_event_writer: EventWriter<GameOverEvent>
@@ -96,7 +96,8 @@ fn detect_collisions(
 
     for (entity, enemy_transform) in enemies.iter() {
         if let Some(_) = collide(player_transform.translation, PLAYER_HITBOX, enemy_transform.translation, ENEMY_HITBOX) {
-            app_state.0 = AppState::GameOver;
+            enemy_count.0 = 0;
+            next_state.set(AppState::GameOver);
             game_over_event_writer.send(GameOverEvent);
         }
 

@@ -16,13 +16,14 @@ impl Plugin for PausePlugin {
 fn handle_keyboard_input ( // TODO eventually make the controller pause
     keys: Res<Input<KeyCode>>,
     mut app_state: ResMut<State<AppState>>,
+    mut next_state: ResMut<NextState<AppState>>,
     mut commands: Commands,
     window: Query<&Window>,
     pause_screen_entities: Query<Entity, With<PauseMenu>>,
     asset_server: Res<AssetServer>
 ) {
     if keys.just_pressed(KeyCode::Escape) {
-        let next_state = match app_state.0 {
+        let next_state_to_go = match app_state.0 {
             AppState::InGame => {
                 spawn_pause_screen(commands, window, asset_server);
                 AppState::Paused
@@ -37,7 +38,7 @@ fn handle_keyboard_input ( // TODO eventually make the controller pause
             _ => AppState::GameOver
         };
 
-        app_state.0 = next_state;
+       next_state.set(next_state_to_go);
     }
 }
 

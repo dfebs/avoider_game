@@ -28,7 +28,7 @@ fn check_for_restart_or_quit ( // GameOver state only, listen for (A)/(X)/Space 
     keys: Res<Input<KeyCode>>,
     mut restart_game_event: EventWriter<GameRestartEvent>,
     game_over_screen_entites: Query<Entity, With<GameOverMenu>>,
-    mut app_state: ResMut<State<AppState>>,
+    mut next_state: ResMut<NextState<AppState>>,
     mut commands: Commands,
     
 ) {
@@ -38,7 +38,7 @@ fn check_for_restart_or_quit ( // GameOver state only, listen for (A)/(X)/Space 
             commands.entity(entity).despawn();
         }
 
-        app_state.0 = AppState::InGame;
+        next_state.set(AppState::InGame);
     }
 }
 

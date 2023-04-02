@@ -49,7 +49,7 @@ fn spawn_enemy(
             commands.spawn((
                 enemy_type,
                 SpriteBundle {
-                    texture: asset_server.load("space_ship_enemy.png"),
+                    texture: asset_server.load("space_ship_enemy_wavy.png"),
                     transform: Transform::from_xyz(starting_x_pos, starting_y_pos, 1.0),
                     ..default()
                 },
