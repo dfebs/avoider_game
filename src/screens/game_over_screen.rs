@@ -30,6 +30,8 @@ fn check_for_restart_or_quit ( // GameOver state only, listen for (A)/(X)/Space 
     game_over_screen_entites: Query<Entity, With<GameOverMenu>>,
     mut next_state: ResMut<NextState<AppState>>,
     mut commands: Commands,
+    buttons: Res<Input<GamepadButton>>,
+    my_gamepad: Option<Res<MyGamePad>>,
     
 ) {
     if keys.just_pressed(KeyCode::Space) {
@@ -39,6 +41,27 @@ fn check_for_restart_or_quit ( // GameOver state only, listen for (A)/(X)/Space 
         }
 
         next_state.set(AppState::InGame);
+        return;
+    }
+
+    let gamepad = if let Some(gp) = my_gamepad {
+        gp.0
+    } else {
+        return;
+    };
+
+    let restart_button = GamepadButton {
+        gamepad, button_type: GamepadButtonType::RightTrigger2
+    };
+
+    if buttons.just_pressed(restart_button) {
+        restart_game_event.send(GameRestartEvent);
+        for entity in game_over_screen_entites.iter() {
+            commands.entity(entity).despawn();
+        }
+
+        next_state.set(AppState::InGame);
+        return;
     }
 }
 
@@ -48,7 +71,7 @@ fn spawn_game_over_screen (
     window: Query<&Window>,
     asset_server: Res<AssetServer>
 ) {
-    let (sprite_bundle, text_bundle) = create_screen(window, asset_server, "Game Over");
+    let (sprite_bundle, text_bundle) = create_screen(window, asset_server, "Game Over - RT/R2/Space - Restart");
     commands.spawn((
         GameOverMenu,
         sprite_bundle,
@@ -61,11 +84,10 @@ fn spawn_game_over_screen (
 }
 
 
-// I tried having this be a shared function that both pause_screen and game_over_screen could use.
-// I could not for the life of me figure out how to make this function shareable. It's definitely
-// because I don't know enough about the crate system. I could keep trying to figure it out
-// but if I do, I think it's going to kill my drive enough for me to stop working on this,
-// so here we are.
+// I tried having this be a shared function that ONLY pause_screen, game_over_screen, and stats_overlay_screen could use.
+// I could not for the life of me figure out how to do it. It's definitely because I don't know enough about the crate system.
+// I could keep trying to figure it out but if I do, I think it's going to kill my drive enough for me to stop working on this, so here we are.
+
 fn create_screen(
     window: Query<&Window>,
     asset_server: Res<AssetServer>,
@@ -90,7 +112,7 @@ fn create_screen(
         screen_text,
         TextStyle {
             font: asset_server.load("fonts/courier_new.ttf"),
-            font_size: 100.0,
+            font_size: 25.0,
             color: Color::WHITE,
         },
     ) // Set the alignment of the Text

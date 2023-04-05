@@ -67,6 +67,7 @@ fn remove_screen(
     mut commands: Commands,
     text: Query<Entity, With<StatsOverlayScreen>>,
 ) {
+    println!("Removing screen");
     let entity = text.single();
     commands.entity(entity).despawn();
 }

@@ -103,11 +103,29 @@ fn projectile_movement( // turn into a plugin at some point probably
 
 fn player_movement(
     time: Res<Time>, 
-    mut sprite: Query<(&mut Transform, &mut Velocity), With<Player>>
+    mut sprite: Query<(&mut Transform, &mut Velocity), With<Player>>,
+    window: Query<&Window>
 ) {
     for (mut transform, mut vel) in &mut sprite {
+        let window = window.single();
         transform.translation.x += vel.0.x * time.delta_seconds();
         transform.translation.y += vel.0.y * time.delta_seconds();
+
+        if transform.translation.x > (window.width() / 2.0) - 32.0 { // There's definitely a better way of doing this
+            transform.translation.x = (window.width() / 2.0) - 32.0;
+        }
+
+        if transform.translation.x < (-window.width() / 2.0) + 32.0 { 
+            transform.translation.x = (-window.width() / 2.0) + 32.0;
+        }
+
+        if transform.translation.y > (window.height() / 2.0) - 32.0 { 
+            transform.translation.y = (window.height() / 2.0) - 32.0;
+        }
+
+        if transform.translation.y < (-window.height() / 2.0) + 32.0 { 
+            transform.translation.y = (-window.height() / 2.0) + 32.0;
+        }
         vel.0.x = 0.0;
         vel.0.y = 0.0;
     }

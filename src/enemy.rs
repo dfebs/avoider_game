@@ -44,7 +44,7 @@ fn spawn_enemy(
     let mut starting_y_pos;
 
     match enemy_type {
-        Enemy::Wavy(wave_size) => { // assume wave_size of 1 or 2
+        Enemy::Wavy(wave_size) => {
             starting_y_pos = rng.gen_range(-200.0..200.0); // this WILL need to change, it will be based on wave_size
             commands.spawn((
                 enemy_type,

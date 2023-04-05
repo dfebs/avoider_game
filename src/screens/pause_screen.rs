@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::common::AppState;
+use crate::common::{AppState, MyGamePad};
 
 #[derive(Component)]
 struct PauseMenu;
@@ -9,18 +9,18 @@ pub struct PausePlugin;
 impl Plugin for PausePlugin {
     fn build(&self, app: &mut App) {
         app
-        .add_system(handle_keyboard_input);
+        .add_systems((handle_keyboard_input, handle_gamepad_input));
     }
 }
 
-fn handle_keyboard_input ( // TODO eventually make the controller pause
+fn handle_keyboard_input (
     keys: Res<Input<KeyCode>>,
-    mut app_state: ResMut<State<AppState>>,
+    app_state: ResMut<State<AppState>>,
     mut next_state: ResMut<NextState<AppState>>,
     mut commands: Commands,
     window: Query<&Window>,
     pause_screen_entities: Query<Entity, With<PauseMenu>>,
-    asset_server: Res<AssetServer>
+    asset_server: Res<AssetServer>,
 ) {
     if keys.just_pressed(KeyCode::Escape) {
         let next_state_to_go = match app_state.0 {
@@ -36,6 +36,47 @@ fn handle_keyboard_input ( // TODO eventually make the controller pause
                 AppState::InGame
             },
             _ => AppState::GameOver
+        };
+
+       next_state.set(next_state_to_go);
+    }
+}
+
+fn handle_gamepad_input ( // This logic could potentially be merged with the keyboard input function
+    app_state: ResMut<State<AppState>>,
+    mut next_state: ResMut<NextState<AppState>>,
+    mut commands: Commands,
+    window: Query<&Window>,
+    pause_screen_entities: Query<Entity, With<PauseMenu>>,
+    asset_server: Res<AssetServer>,
+    buttons: Res<Input<GamepadButton>>,
+    my_gamepad: Option<Res<MyGamePad>>,
+) {
+
+    let gamepad = if let Some(gp) = my_gamepad {
+        gp.0
+    } else {
+        return;
+    };
+
+    let pause_button = GamepadButton {
+        gamepad, button_type: GamepadButtonType::Start
+    };
+
+    if buttons.just_pressed(pause_button)  {
+        let next_state_to_go = match app_state.0 {
+            AppState::InGame => {
+                spawn_pause_screen(commands, window, asset_server);
+                AppState::Paused
+            },
+            AppState::Paused => {
+                for entity in pause_screen_entities.iter() {
+                    commands.entity(entity).despawn();
+                }
+                
+                AppState::InGame
+            },
+            _ => return
         };
 
        next_state.set(next_state_to_go);
@@ -59,11 +100,9 @@ fn spawn_pause_screen (
     ));
 }
 
-// I tried having this be a shared function that both pause_screen and game_over_screen could use.
-// I could not for the life of me figure out how to make this function shareable. It's definitely
-// because I don't know enough about the crate system. I could keep trying to figure it out
-// but if I do, I think it's going to kill my drive enough for me to stop working on this,
-// so here we are.
+// I tried having this be a shared function that ONLY pause_screen, game_over_screen, and stats_overlay_screen could use.
+// I could not for the life of me figure out how to do it. It's definitely because I don't know enough about the crate system.
+// I could keep trying to figure it out but if I do, I think it's going to kill my drive enough for me to stop working on this, so here we are.
 fn create_screen(
     window: Query<&Window>,
     asset_server: Res<AssetServer>,
