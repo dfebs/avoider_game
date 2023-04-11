@@ -33,3 +33,4 @@ app
 * It also may be possible to handle some of the controller boilerplate and use the buttons as a resource
 * Dumb numbers about the window size should be a global resource
 * I'll need to review how the cargo dependency system works, it is in fact less simple than I thought.
+* There's definitely a few chains of as_ref().unwrap() that I had to do with level/stage management that I shouldn't be doing. What may have been a better approach? 

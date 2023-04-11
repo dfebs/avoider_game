@@ -45,14 +45,17 @@ fn maintain_screen_state (
     window: Query<&Window>,
     asset_server: Res<AssetServer>
 ) {
+    if current_stage.0.is_none() {
+        return;
+    }
 
     if text.iter().len() == 0 {
-        spawn_screen(commands, window, asset_server, String::from(&current_stage.0.title));
+        spawn_screen(commands, window, asset_server, String::from(&current_stage.0.as_ref().unwrap().title));
         return;
     }
     let (entity, title) = text.single();
 
-    if current_stage.0.title == title.sections[0].value {
+    if current_stage.0.as_ref().unwrap().title == title.sections[0].value {
         return;
     }
 
@@ -60,7 +63,7 @@ fn maintain_screen_state (
 
     commands.entity(entity).despawn();
 
-    spawn_screen(commands, window, asset_server, String::from(&current_stage.0.title))
+    spawn_screen(commands, window, asset_server, String::from(&current_stage.0.as_ref().unwrap().title))
 }
 
 fn remove_screen(

@@ -23,7 +23,7 @@ pub struct ExplosionSprite(pub Handle<TextureAtlas>);
 #[derive(Resource)]
 pub struct MyGamePad(pub Gamepad);
 
-pub struct GameOverEvent; // fun fact, events can carry data with them too. Not needed here, but good to know.
+pub struct GameOverEvent(pub String);
 pub struct GameRestartEvent;
 
 pub const PROJECTILE_HITBOX: Vec2 = Vec2::new(32.0, 16.0);
@@ -98,7 +98,7 @@ fn detect_collisions(
         if let Some(_) = collide(player_transform.translation, PLAYER_HITBOX, enemy_transform.translation, ENEMY_HITBOX) {
             enemy_count.0 = 0;
             next_state.set(AppState::GameOver);
-            game_over_event_writer.send(GameOverEvent);
+            game_over_event_writer.send(GameOverEvent(String::from("Game Over: Press A/X (gamepad) or R (Keyboard)")));
         }
 
         for (projectile, projectile_transform) in player_projectiles.iter() {

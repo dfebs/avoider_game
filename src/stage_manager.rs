@@ -11,7 +11,7 @@ pub struct StageTimer(Timer);
 pub struct AllStages(VecDeque<Stage>);
 
 #[derive(Resource)]
-pub struct CurrentStage(pub Stage);
+pub struct CurrentStage(pub Option<Stage>);
 
 pub struct Stage {
     pub title: String,
@@ -60,18 +60,20 @@ fn stage_logic(
     mut timer: ResMut<StageTimer>,
     mut all_stages: ResMut<AllStages>,
 ){
-    if !timer.0.tick(time.delta()).finished() {
+    if current_stage.0.is_none() || !timer.0.tick(time.delta()).finished() {
         return;
     }
 
     if let Some(stage) = all_stages.0.pop_front() {
         println!("NEXT LEVEL");
-        timer.0 = Timer::from_seconds(current_stage.0.timer_limit_sec, TimerMode::Once);
-        current_stage.0 = stage;
+        timer.0 = Timer::from_seconds(current_stage.0.as_ref().unwrap().timer_limit_sec, TimerMode::Once);
+        current_stage.0 = Some(stage);
+    } else {
+        current_stage.0 = None;
     }
 }
 
-fn generate_stages () -> (Stage, StageTimer, VecDeque<Stage>) {
+fn generate_stages () -> (Option<Stage>, StageTimer, VecDeque<Stage>) {
     const STARTING_TIME_LIMIT: f32 = 20.0;
 
     let first_stage = Stage {
@@ -100,5 +102,5 @@ fn generate_stages () -> (Stage, StageTimer, VecDeque<Stage>) {
         ]
     );
 
-    return (first_stage, starting_timer, remaining_stages);
+    return (Some(first_stage), starting_timer, remaining_stages);
 }

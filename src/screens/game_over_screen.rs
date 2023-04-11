@@ -14,13 +14,13 @@ impl Plugin for GameOverPlugin {
 }
 
 fn listen_for_game_over (
-    game_over_event_reader: EventReader<GameOverEvent>,
+    mut game_over_event_reader: EventReader<GameOverEvent>,
     commands: Commands, 
     window: Query<&Window>,
     asset_server: Res<AssetServer>
 ) { // this system will be used during all states
     if game_over_event_reader.len() >= 1 {
-        spawn_game_over_screen(commands, window, asset_server);
+        spawn_game_over_screen(&game_over_event_reader.iter().next().unwrap().0, commands, window, asset_server); // Yeah this is pretty goofy. Next time just read for state change instead of using an event
     }
 }
 
@@ -34,7 +34,7 @@ fn check_for_restart_or_quit ( // GameOver state only, listen for (A)/(X)/Space 
     my_gamepad: Option<Res<MyGamePad>>,
     
 ) {
-    if keys.just_pressed(KeyCode::Space) {
+    if keys.just_pressed(KeyCode::R) {
         restart_game_event.send(GameRestartEvent);
         for entity in game_over_screen_entites.iter() {
             commands.entity(entity).despawn();
@@ -51,7 +51,7 @@ fn check_for_restart_or_quit ( // GameOver state only, listen for (A)/(X)/Space 
     };
 
     let restart_button = GamepadButton {
-        gamepad, button_type: GamepadButtonType::RightTrigger2
+        gamepad, button_type: GamepadButtonType::South
     };
 
     if buttons.just_pressed(restart_button) {
@@ -67,11 +67,12 @@ fn check_for_restart_or_quit ( // GameOver state only, listen for (A)/(X)/Space 
 
 
 fn spawn_game_over_screen (
+    message: &str,
     mut commands: Commands,
     window: Query<&Window>,
     asset_server: Res<AssetServer>
 ) {
-    let (sprite_bundle, text_bundle) = create_screen(window, asset_server, "Game Over - RT/R2/Space - Restart");
+    let (sprite_bundle, text_bundle) = create_screen(window, asset_server, &message);
     commands.spawn((
         GameOverMenu,
         sprite_bundle,

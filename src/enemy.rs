@@ -87,7 +87,7 @@ fn enemy_spawning(
         return;
     }
     let mut rng = rand::thread_rng();
-    let enemy_types = &current_stage.0.enemy_types;
+    let enemy_types = &current_stage.0.as_ref().unwrap().enemy_types;
     let enemy_type = enemy_types[rng.gen_range(0..enemy_types.len())];
 
     spawn_enemy(commands, window, enemy_count, asset_server, enemy_type);
@@ -97,13 +97,16 @@ fn check_for_stage_update(
     current_stage: Res<CurrentStage>,
     mut enemy_spawn_timer: ResMut<EnemySpawnTimer>,
 ) {
-    if enemy_spawn_timer.0.duration() == Duration::from_secs_f32(current_stage.0.enemy_spawn_rate_sec) {
+    if current_stage.0.is_none() {
+        return;
+    }
+    if enemy_spawn_timer.0.duration() == Duration::from_secs_f32(current_stage.0.as_ref().unwrap().enemy_spawn_rate_sec) {
         return;
     }
 
-    println!("Enemy spawn rate changed to {}", current_stage.0.enemy_spawn_rate_sec);
+    println!("Enemy spawn rate changed to {}", current_stage.0.as_ref().unwrap().enemy_spawn_rate_sec);
 
-    enemy_spawn_timer.0 = Timer::from_seconds(current_stage.0.enemy_spawn_rate_sec, TimerMode::Repeating)
+    enemy_spawn_timer.0 = Timer::from_seconds(current_stage.0.as_ref().unwrap().enemy_spawn_rate_sec, TimerMode::Repeating)
 }
 
 pub fn enemy_movement(
