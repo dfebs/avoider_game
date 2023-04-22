@@ -65,7 +65,6 @@ fn stage_logic(
     }
 
     if let Some(stage) = all_stages.0.pop_front() {
-        println!("NEXT LEVEL");
         timer.0 = Timer::from_seconds(current_stage.0.as_ref().unwrap().timer_limit_sec, TimerMode::Once);
         current_stage.0 = Some(stage);
     } else {

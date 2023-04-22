@@ -1,5 +1,5 @@
-use bevy::{prelude::*, sprite::collide_aabb::collide};
-use common::{Velocity, CommonPlugin, ExplosionSprite, GameOverEvent, Projectile};
+use bevy::{prelude::*};
+use common::{CommonPlugin, ExplosionSprite, GameOverEvent, Projectile};
 use enemy::{EnemyPlugin, Enemy};
 use player::{Player, PlayerPlugin};
 use stage_manager::*;

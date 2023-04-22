@@ -104,8 +104,6 @@ fn check_for_stage_update(
         return;
     }
 
-    println!("Enemy spawn rate changed to {}", current_stage.0.as_ref().unwrap().enemy_spawn_rate_sec);
-
     enemy_spawn_timer.0 = Timer::from_seconds(current_stage.0.as_ref().unwrap().enemy_spawn_rate_sec, TimerMode::Repeating)
 }
 

@@ -18,19 +18,17 @@ impl Plugin for StatsOverlayPlugin {
 
 fn initialize (
     commands: Commands,
-    window: Query<&Window>,
     asset_server: Res<AssetServer>
 ) {
-    spawn_screen(commands, window, asset_server, String::from("Level 1"));
+    spawn_screen(commands, asset_server, String::from("Level 1"));
 }
 
 fn spawn_screen (
     mut commands: Commands,
-    window: Query<&Window>,
     asset_server: Res<AssetServer>,
     title: String
 ) {
-    let text_bundle = create_screen(window, asset_server, title);
+    let text_bundle = create_screen(asset_server, title);
 
     commands.spawn((
         StatsOverlayScreen,
@@ -42,7 +40,6 @@ fn maintain_screen_state (
     mut commands: Commands,
     current_stage: Res<CurrentStage>,
     text: Query<(Entity, &mut Text), With<StatsOverlayScreen>>,
-    window: Query<&Window>,
     asset_server: Res<AssetServer>
 ) {
     if current_stage.0.is_none() {
@@ -50,7 +47,7 @@ fn maintain_screen_state (
     }
 
     if text.iter().len() == 0 {
-        spawn_screen(commands, window, asset_server, String::from(&current_stage.0.as_ref().unwrap().title));
+        spawn_screen(commands, asset_server, String::from(&current_stage.0.as_ref().unwrap().title));
         return;
     }
     let (entity, title) = text.single();
@@ -59,31 +56,23 @@ fn maintain_screen_state (
         return;
     }
 
-    println!("we maintaining screen state");
-
     commands.entity(entity).despawn();
 
-    spawn_screen(commands, window, asset_server, String::from(&current_stage.0.as_ref().unwrap().title))
+    spawn_screen(commands, asset_server, String::from(&current_stage.0.as_ref().unwrap().title))
 }
 
 fn remove_screen(
     mut commands: Commands,
     text: Query<Entity, With<StatsOverlayScreen>>,
 ) {
-    println!("Removing screen");
     let entity = text.single();
     commands.entity(entity).despawn();
 }
 
 fn create_screen(
-    window: Query<&Window>,
     asset_server: Res<AssetServer>,
     screen_text: String
 ) -> TextBundle {
-    let window = window.single();
-    let width = window.width(); // TODO make a WindowBounds struct resource that will make these bounds reusable
-    let height = window.height();
-
     let text_bundle = TextBundle::from_section(
         // Accepts a `String` or any type that converts into a `String`, such as `&str`
         screen_text,
