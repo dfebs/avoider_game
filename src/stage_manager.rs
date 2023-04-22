@@ -74,7 +74,7 @@ fn stage_logic(
 }
 
 fn generate_stages () -> (Option<Stage>, StageTimer, VecDeque<Stage>) {
-    const STARTING_TIME_LIMIT: f32 = 20.0;
+    const STARTING_TIME_LIMIT: f32 = 15.0;
 
     let first_stage = Stage {
         title: String::from("Level 1"),
@@ -91,13 +91,13 @@ fn generate_stages () -> (Option<Stage>, StageTimer, VecDeque<Stage>) {
                 title: String::from("Level 2"),
                 enemy_types: Vec::from([Enemy::Standard, Enemy::Wavy(1.0)]),
                 enemy_spawn_rate_sec: 1.0,
-                timer_limit_sec: 20.0
+                timer_limit_sec: 15.0
             },
             Stage {
                 title: String::from("Level 3"),
                 enemy_types: Vec::from([Enemy::Wavy(1.0), Enemy::Wavy(2.0)]),
                 enemy_spawn_rate_sec: 0.5,
-                timer_limit_sec: 20.0
+                timer_limit_sec: 15.0
             }
         ]
     );

@@ -24,7 +24,7 @@ impl Plugin for EnemyPlugin {
         .insert_resource(EnemySpawnTimer(Timer::from_seconds(1.0, TimerMode::Repeating)))
         .insert_resource(EnemyCount(0))
         .add_systems(
-            (enemy_spawning, enemy_movement, check_for_stage_update).in_set(OnUpdate(AppState::InGame))
+            (enemy_spawning, enemy_movement, check_for_stage_update, check_player_won).in_set(OnUpdate(AppState::InGame))
         );
     }
 }
@@ -41,10 +41,10 @@ fn spawn_enemy(
     let window = window.single();
     let starting_x_pos = window.width() / 2.0 + ENEMY_HITBOX.x;
     let starting_x_velocity = rng.gen_range(-400.0..-300.0);
-    let mut starting_y_pos;
+    let starting_y_pos;
 
     match enemy_type {
-        Enemy::Wavy(wave_size) => {
+        Enemy::Wavy(_) => {
             starting_y_pos = rng.gen_range(-200.0..200.0); // this WILL need to change, it will be based on wave_size
             commands.spawn((
                 enemy_type,
@@ -83,7 +83,7 @@ fn enemy_spawning(
     current_stage: Res<CurrentStage>,
 ) {
 
-    if !timer.0.tick(time.delta()).just_finished() {
+    if !timer.0.tick(time.delta()).just_finished() || current_stage.0.is_none() {
         return;
     }
     let mut rng = rand::thread_rng();
@@ -109,16 +109,32 @@ fn check_for_stage_update(
     enemy_spawn_timer.0 = Timer::from_seconds(current_stage.0.as_ref().unwrap().enemy_spawn_rate_sec, TimerMode::Repeating)
 }
 
-pub fn enemy_movement(
-    mut commands: Commands, 
-    window: Query<&Window>, 
-    mut enemies: Query<(Entity, &mut Velocity, &mut Transform, &Enemy)>,
+fn check_player_won ( // this should go somewhere else but eh
+    mut game_over_event_writer: EventWriter<GameOverEvent>,
     mut enemy_count: ResMut<EnemyCount>,
+    current_stage: Res<CurrentStage>,
+    mut next_state: ResMut<NextState<AppState>>,
+    player_death_event_reader: EventReader<PlayerDeathEvent>,
+    
+) {
+    let all_enemies_dead = enemy_count.0 == 0;
+    let stages_complete = current_stage.0.is_none();
+
+    if all_enemies_dead && stages_complete && player_death_event_reader.len() == 0 {
+        enemy_count.0 = 0;
+        next_state.set(AppState::GameOver);
+        game_over_event_writer.send(GameOverEvent(String::from("You win!")));
+    }
+}
+
+pub fn enemy_movement(
+    window: Query<&Window>, 
+    mut enemies: Query<(&mut Velocity, &mut Transform, &Enemy)>,
     time: Res<Time>
 ) {
     let mut rng = rand::thread_rng();
     let window = window.single();
-    for (entity, mut vel, mut transform, enemy_type) in enemies.iter_mut() {
+    for (mut vel, mut transform, enemy_type) in enemies.iter_mut() {
         let delta = time.delta_seconds();
         transform.translation.x += vel.0.x * delta;
         transform.translation.y += vel.0.y * delta;

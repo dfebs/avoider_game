@@ -26,6 +26,8 @@ pub struct MyGamePad(pub Gamepad);
 pub struct GameOverEvent(pub String);
 pub struct GameRestartEvent;
 
+pub struct PlayerDeathEvent;
+
 pub const PROJECTILE_HITBOX: Vec2 = Vec2::new(32.0, 16.0);
 
 pub struct CommonPlugin;
@@ -35,6 +37,7 @@ impl Plugin for CommonPlugin {
         .add_state::<AppState>()
         .add_event::<GameOverEvent>()
         .add_event::<GameRestartEvent>()
+        .add_event::<PlayerDeathEvent>()
         .add_systems(
             (detect_collisions, animate_explosions).in_set(OnUpdate(AppState::InGame))
         );
@@ -90,7 +93,8 @@ fn detect_collisions(
     mut next_state: ResMut<NextState<AppState>>,
     mut enemy_count: ResMut<EnemyCount>,
     explosion_sprite: Res<ExplosionSprite>,
-    mut game_over_event_writer: EventWriter<GameOverEvent>
+    mut game_over_event_writer: EventWriter<GameOverEvent>,
+    mut player_death_event_writer: EventWriter<PlayerDeathEvent>
 ) {
     let player_transform = player.single();
 
@@ -98,6 +102,7 @@ fn detect_collisions(
         if let Some(_) = collide(player_transform.translation, PLAYER_HITBOX, enemy_transform.translation, ENEMY_HITBOX) {
             enemy_count.0 = 0;
             next_state.set(AppState::GameOver);
+            player_death_event_writer.send(PlayerDeathEvent);
             game_over_event_writer.send(GameOverEvent(String::from("Game Over: Press A/X (gamepad) or R (Keyboard)")));
         }
 
