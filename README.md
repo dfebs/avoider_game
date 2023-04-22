@@ -6,7 +6,7 @@ To use, make sure you have rust installed and then do a `cargo run`. These instr
 * Make readme more robust
 * Get this bad boi to run in the browser
 * fix flaky bug where moving with wasd is messed up while gamepad is plugged in
-* Create a win condition (i.e. surviving till last level and killing remainder of ships)
+* Get some form of primitive sound to work (that doesn't explode your ears)
 
  ## Things that would improve this game but weren't implemented
  * Make flames come out the ships backs (The asset was added but didn't end up implementing it)
