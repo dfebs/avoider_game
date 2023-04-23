@@ -52,6 +52,7 @@ fn fire_weapon (
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut weapon_cooldown: Query<&mut PlayerWeaponCooldownTimer>,
+    audio: Res<Audio>
 ) {
     match weapon_cooldown.get_single_mut() {
         Ok(timer) => {
@@ -66,6 +67,8 @@ fn fire_weapon (
         }
     }
 
+    let pew_noise = asset_server.load("sound/laser.ogg");
+    audio.play(pew_noise);
     commands.spawn((
         Projectile,
         SpriteBundle {
@@ -136,12 +139,13 @@ fn handle_keyboard_input(
     asset_server: Res<AssetServer>,
     keys: Res<Input<KeyCode>>,
     mut player: Query<(&Transform, &mut Velocity), With<Player>>,
-    weapon_cooldown: Query<&mut PlayerWeaponCooldownTimer>
+    weapon_cooldown: Query<&mut PlayerWeaponCooldownTimer>,
+    audio: Res<Audio>
 ) {
     let (transform, mut vel) = player.single_mut();
 
     if keys.just_pressed(KeyCode::Space) {
-        fire_weapon(transform, commands, asset_server, weapon_cooldown);
+        fire_weapon(transform, commands, asset_server, weapon_cooldown, audio);
     }
     if keys.pressed(KeyCode::W) {
         vel.0.y = 200.0;
@@ -164,6 +168,7 @@ fn handle_gamepad_input(
 
     commands: Commands,
     asset_server: Res<AssetServer>, // Not ideal, we'd ideally have assets preloaded and not have to do this
+    audio: Res<Audio>,
     weapon_cooldown: Query<&mut PlayerWeaponCooldownTimer>,
     mut player: Query<(&Transform, &mut Velocity), With<Player>>
 ){
@@ -192,7 +197,7 @@ fn handle_gamepad_input(
     };
 
     if buttons.just_pressed(shoot_button) {
-        fire_weapon(transform, commands, asset_server, weapon_cooldown);
+        fire_weapon(transform, commands, asset_server, weapon_cooldown, audio);
     }
 
 }

@@ -4,11 +4,9 @@ To use, make sure you have rust installed and then do a `cargo run`. These instr
 ## TODO
 
 * Make readme more robust
-* Get this bad boi to run in the browser
-* fix flaky bug where moving with wasd is messed up while gamepad is plugged in
-* Get some form of primitive sound to work (that doesn't explode your ears)
 
  ## Things that would improve this game but weren't implemented
+ * fix flaky bug where moving with wasd is messed up while gamepad is plugged in
  * Make flames come out the ships backs (The asset was added but didn't end up implementing it)
 * Scale game assets based on window size
 * Use `insert` when spawning things with multiple attributes (aka basically everything) 

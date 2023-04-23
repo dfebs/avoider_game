@@ -94,7 +94,9 @@ fn detect_collisions(
     mut enemy_count: ResMut<EnemyCount>,
     explosion_sprite: Res<ExplosionSprite>,
     mut game_over_event_writer: EventWriter<GameOverEvent>,
-    mut player_death_event_writer: EventWriter<PlayerDeathEvent>
+    mut player_death_event_writer: EventWriter<PlayerDeathEvent>,
+    audio: Res<Audio>,
+    asset_server: Res<AssetServer>
 ) {
     let player_transform = player.single();
 
@@ -108,6 +110,8 @@ fn detect_collisions(
 
         for (projectile, projectile_transform) in player_projectiles.iter() {
             if let Some(_) = collide(projectile_transform.translation, PROJECTILE_HITBOX, enemy_transform.translation, ENEMY_HITBOX) {
+                let explosion_noise = asset_server.load("sound/explosion.ogg");
+                audio.play(explosion_noise);
                 spawn_explosion(&mut commands, &explosion_sprite, enemy_transform);
                 commands.entity(entity).despawn();
                 commands.entity(projectile).despawn();
